@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Historical City Quiz</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+        }
+        .question {
+            margin-top: 20px;
+        }
+        .city-button, .option-button {
+            margin: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .correct {
+            background-color: lightgreen;
+        }
+        .incorrect {
+            background-color: lightcoral;
+        }
+        .next {
+            display: none;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Historical City Quiz</h1>
+    <div id="start-screen">
+        <h2>Select Your City</h2>
+        <button class="city-button" onclick="startQuiz('Kolkata')">Kolkata</button>
+        <button class="city-button" onclick="startQuiz('Delhi')">Delhi</button>
+        <button class="city-button" onclick="startQuiz('Mumbai')">Mumbai</button>
+    </div>
+    
+    <div id="quiz-screen" style="display: none;">
+        <h2 id="question-title"></h2>
+        <img id="quiz-image" src="" alt="Historical landmark" style="width: 80%; height: auto; margin: 20px 0;">
+        <div id="options"></div>
+        <button class="next" id="next-button" onclick="nextQuestion()">Next</button>
+    </div>
+
+    <div id="result-screen" style="display: none;">
+        <h2 id="result-message"></h2>
+        <button onclick="restartQuiz()">Try Again</button>
+    </div>
+
+    <script>
+        const questions = {
+            Kolkata: [
+                { img: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgNXI56A8pqDsd9mDhTXrfz_kqHIhfYa8j2d1dKae2nkOEgP_CRiqX5TUvqZIKC1UZUnKUasJsmHxqDeHJBumuDhSDl2l4dMpZT-Fv3TvNTYfiEZw7mF4jKNmWAVmbMcz3i_qRGtSJBjaZi/s1600-h/Burra+Bazaar,+Calcutta,++an+albumen+photo,+c.1880%27s.jpg', correct: 'Burra Bazaar' },
+                { img: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjQ4WkRBvQBndvLCk0zcI4XskjmUZC3CGvYul7hZDM62UtSTZH59PB1DrscliOhfQtFg6jJTTHyIQbaFnlurKfY4CrrjveuyUBHutcoxt5Kegb_diWTOZxvjdEXuuy_lU55tme7wlUtOIo/s0/Calcutta-%2528Kolkata%2529---The-Old-Howrah-Bridge---1912.jpg', correct: 'Howrah Bridge' },
+                { img: 'https://lh3.googleusercontent.com/blogger_img/APIUysjDBe6KfKFsredd1_q_3LCSDh-heS_LK0AkLDP5nq6fRHnXeIKZh5PIHJLty086ppBglftDm4aPM-WKmg=s1600', correct: 'Eden Gardens' }
+            ],
+            Delhi: [
+                { img: 'https://img1.wsimg.com/isteam/ip/63b04b47-d65a-4207-a58c-3e58f38419ef/The-Lahore-Gate-(Western-Gate)-of-Red-Fort-or-.jpg/:/cr=t:0%25,l:0%25,w:100%25,h:100%25/rs=w:1280', correct: 'Lahore Gate' },
+                { img: 'https://img1.wsimg.com/isteam/ip/63b04b47-d65a-4207-a58c-3e58f38419ef/unnamed.jpg/:/rs=w:1280', correct: 'Jama Masjid' },
+                { img: 'https://img1.wsimg.com/isteam/ip/63b04b47-d65a-4207-a58c-3e58f38419ef/IMG_20201017_204202.jpg/:/rs=w:1280', correct: 'Kashmere Gate' }
+            ],
+            Mumbai: [
+                { img: 'https://www.past-india.com/wp-content/uploads/2024/09/DSC_0112.jpg', correct: 'Bhendi Bazaar' },
+                { img: 'https://www.past-india.com/wp-content/uploads/2024/01/DSC_0342wl-1.jpg', correct: 'Victoria Terminus & BMC Bombay' },
+                { img: 'https://www.past-india.com/wp-content/uploads/2023/11/DSC_0026wlR.jpg', correct: 'Bombay High Court' }
+            ]
+        };
+
+        let currentCity = '';
+        let currentQuestionIndex = 0;
+        let score = 0;
+
+        function startQuiz(city) {
+            currentCity = city;
+            currentQuestionIndex = 0;
+            score = 0;
+            document.getElementById('start-screen').style.display = 'none';
+            document.getElementById('quiz-screen').style.display = 'block';
+            showQuestion();
+        }
+
+        function showQuestion() {
+            const question = questions[currentCity][currentQuestionIndex];
+            document.getElementById('question-title').textContent = `Identify this landmark in ${currentCity}`;
+            document.getElementById('quiz-image').src = question.img;
+            const optionsContainer = document.getElementById('options');
+            optionsContainer.innerHTML = '';
+
+            const options = [question.correct, 'Random Place 1', 'Random Place 2']; // Placeholder for options generation.
+            shuffle(options);
+            options.forEach(option => {
+                const button = document.createElement('button');
+                button.textContent = option;
+                button.className = 'option-button';
+                button.onclick = () => checkAnswer(option, question.correct);
+                optionsContainer.appendChild(button);
+            });
+        }
+
+        function checkAnswer(selected, correct) {
+            const buttons = document.querySelectorAll('.option-button');
+            buttons.forEach(button => {
+                button.disabled = true;
+                if (button.textContent === correct) {
+                    button.classList.add('correct');
+                } else if (button.textContent === selected) {
+                    button.classList.add('incorrect');
+                }
+            });
+            if (selected === correct) score++;
+            document.getElementById('next-button').style.display = 'inline';
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < questions[currentCity].length) {
+                document.getElementById('next-button').style.display = 'none';
+                showQuestion();
+            } else {
+                showResult();
+            }
+        }
+
+        function showResult() {
+            document.getElementById('quiz-screen').style.display = 'none';
+            document.getElementById('result-screen').style.display = 'block';
+            const resultMessage = score === 3 ? 'You Truly Know Your City 🤗' : score === 2 ? 'Almost Perfect! A Local Expert in the Making 😎' : score === 1 ? 'Not Bad! You Have Some Local Knowledge ✨' : 'Oops! Time for a History Refresher 😅';
+            document.getElementById('result-message').textContent = resultMessage;
+        }
+
+        function restartQuiz() {
+            document.getElementById('result-screen').style.display = 'none';
+            document.getElementById('start-screen').style.display = 'block';
+        }
+
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+    </script>
+</body>
+</html>
